@@ -120,6 +120,7 @@ router.get('/:id/pdf', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const {
+      folio,
       clienteNombre,
       clienteContacto,
       clienteEmail,
@@ -130,6 +131,7 @@ router.post('/', async (req, res) => {
       notas,
       partidas,
     } = req.body as {
+      folio?: string;
       clienteNombre?: string;
       clienteContacto?: string;
       clienteEmail?: string;
@@ -146,12 +148,22 @@ router.post('/', async (req, res) => {
       return;
     }
 
+    const folioFinal = (folio ?? '').trim() || generarFolio();
+
+    const existeFolio = await prisma.cotizacion.findUnique({
+      where: { folio: folioFinal },
+    });
+    if (existeFolio) {
+      res.status(409).json({ error: `El folio «${folioFinal}» ya está en uso` });
+      return;
+    }
+
     const partidasCalculadas = calcularPartidas(partidas);
     const subtotal = partidasCalculadas.reduce((acc, p) => acc + p.totalPartida, 0);
 
     const cotizacion = await prisma.cotizacion.create({
       data: {
-        folio: generarFolio(),
+        folio: folioFinal,
         usuarioId: req.usuario!.sub,
         clienteNombre,
         clienteContacto,
@@ -198,6 +210,7 @@ router.put('/:id', async (req, res) => {
     }
 
     const {
+      folio,
       clienteNombre,
       clienteContacto,
       clienteEmail,
@@ -206,6 +219,7 @@ router.put('/:id', async (req, res) => {
       notas,
       partidas,
     } = req.body as {
+      folio?: string;
       clienteNombre?: string;
       clienteContacto?: string;
       clienteEmail?: string;
@@ -215,7 +229,19 @@ router.put('/:id', async (req, res) => {
       partidas?: PartidaInput[];
     };
 
+    const folioFinal = folio ? folio.trim() : undefined;
+    if (folioFinal) {
+      const existeFolio = await prisma.cotizacion.findFirst({
+        where: { folio: folioFinal, NOT: { id: existente.id } },
+      });
+      if (existeFolio) {
+        res.status(409).json({ error: `El folio «${folioFinal}» ya está en uso` });
+        return;
+      }
+    }
+
     const data: Record<string, unknown> = {
+      folio: folioFinal ?? existente.folio,
       clienteNombre: clienteNombre ?? existente.clienteNombre,
       clienteContacto: clienteContacto ?? existente.clienteContacto,
       clienteEmail: clienteEmail ?? existente.clienteEmail,

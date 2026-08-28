@@ -13,6 +13,8 @@ import { api } from '../lib/api';
 import { useAppStore } from '../store/useAppStore';
 import type { Cotizacion, Moneda, Partida } from '../types';
 import { toNumber } from '../types';
+import VistaPreviaCotizacion from '../components/VistaPreviaCotizacion';
+import type { DatosPreview } from '../components/VistaPreviaCotizacion';
 
 const schemaCotizacion = z.object({
   clienteNombre: z.string().min(1, 'El nombre del cliente es requerido'),
@@ -92,14 +94,19 @@ const DescripcionInput = memo(function DescripcionInput({ uid, value, onChange }
 
 const PrecioInput = memo(function PrecioInput({ uid, value, onChange }: CellInputProps) {
   return (
-    <input
-      type="number"
-      min={0}
-      step={0.01}
-      value={value}
-      onChange={(e) => onChange(uid, 'precioUnitario', Number(e.target.value) || 0)}
-      className="w-full rounded-xl border border-gray-200 bg-transparent px-3 py-1.5 text-right text-sm outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
-    />
+    <div className="relative">
+      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+        $
+      </span>
+      <input
+        type="number"
+        min={0}
+        step={0.01}
+        value={value}
+        onChange={(e) => onChange(uid, 'precioUnitario', Number(e.target.value) || 0)}
+        className="w-full rounded-xl border border-gray-200 bg-transparent py-1.5 pl-7 pr-3 text-right text-sm outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
+      />
+    </div>
   );
 });
 
@@ -117,11 +124,13 @@ export default function CotizadorPage() {
   const [clienteNombre, setClienteNombre] = useState('');
   const [clienteContacto, setClienteContacto] = useState('');
   const [clienteEmail, setClienteEmail] = useState('');
+  const [folio, setFolio] = useState('');
   const [notas, setNotas] = useState('');
   const [partidas, setPartidas] = useState<PartidaEditor[]>([nuevaPartida()]);
   const [guardando, setGuardando] = useState(false);
   const [cargando, setCargando] = useState(editando);
   const [imagenGrande, setImagenGrande] = useState<string | null>(null);
+  const [mostrarPreview, setMostrarPreview] = useState(false);
 
   const fileInputs = useRef<Map<string, HTMLInputElement>>(new Map());
 
@@ -130,6 +139,7 @@ export default function CotizadorPage() {
     async function cargar() {
       try {
         const cot = await api.get<Cotizacion>(`/cotizaciones/${id}`);
+        setFolio(cot.folio ?? '');
         setClienteNombre(cot.clienteNombre);
         setClienteContacto(cot.clienteContacto ?? '');
         setClienteEmail(cot.clienteEmail ?? '');
@@ -359,6 +369,29 @@ export default function CotizadorPage() {
     }).format(valor);
   }
 
+  const datosPreview: DatosPreview = useMemo(
+    () => ({
+      folio,
+      clienteNombre,
+      clienteContacto,
+      clienteEmail,
+      notas,
+      moneda: monedaActiva,
+      tipoCambio,
+      partidas: partidas
+        .filter((p) => p.descripcion.trim())
+        .map((p) => ({
+          cantidad: p.cantidad,
+          codigoProducto: p.codigoProducto || undefined,
+          descripcion: p.descripcion,
+          imagenUrl: p.imagenUrl,
+          precioUnitario: p.precioUnitario,
+          totalPartida: p.totalPartida,
+        })),
+    }),
+    [folio, clienteNombre, clienteContacto, clienteEmail, notas, monedaActiva, tipoCambio, partidas],
+  );
+
   async function handleGuardar() {
     const resultado = schemaCotizacion.safeParse({
       clienteNombre,
@@ -374,7 +407,8 @@ export default function CotizadorPage() {
     setGuardando(true);
 
     try {
-      const payload: Omit<Cotizacion, 'id' | 'folio' | 'fechaCreacion'> & { partidas: Partida[] } = {
+      const payload: Omit<Cotizacion, 'id' | 'fechaCreacion'> & { partidas: Partida[] } = {
+        folio: folio.trim() || undefined,
         clienteNombre: clienteNombre.trim(),
         clienteContacto: clienteContacto.trim() || undefined,
         clienteEmail: clienteEmail.trim() || undefined,
@@ -454,6 +488,16 @@ export default function CotizadorPage() {
       <>
       <div className="rounded-3xl bg-white p-5 shadow-md">
         <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-slate-400">Folio</label>
+            <input
+              type="text"
+              value={folio}
+              onChange={(e) => setFolio(e.target.value)}
+              placeholder="COT-2026-000 (automático si lo dejas vacío)"
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
+            />
+          </div>
           <div>
             <label className="mb-1.5 block text-xs font-medium text-slate-400">Cliente *</label>
             <input
@@ -554,6 +598,17 @@ export default function CotizadorPage() {
 
       <div className="flex items-center justify-end gap-3">
         <button
+          onClick={() => setMostrarPreview(true)}
+          className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-6 py-3 text-sm font-medium text-slate-700 transition hover:bg-gray-50"
+          title="Ver cómo quedará la cotización"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          Vista previa
+        </button>
+        <button
           onClick={() => navigate('/')}
           className="rounded-full border border-gray-200 px-7 py-3 text-sm font-medium text-slate-600 transition hover:bg-gray-50"
         >
@@ -568,6 +623,10 @@ export default function CotizadorPage() {
         </button>
       </div>
       </>
+      )}
+
+      {mostrarPreview && (
+        <VistaPreviaCotizacion datos={datosPreview} onCerrar={() => setMostrarPreview(false)} />
       )}
 
       {imagenGrande && (
