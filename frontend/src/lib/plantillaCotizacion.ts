@@ -19,7 +19,6 @@ export function plantillaCotizacion(data: {
     totalPartida: number;
   }[];
 }): string {
-  const simbolo = data.monedaBase === 'USD' ? 'USD' : 'MXN';
   const fmt = (v: number) =>
     new Intl.NumberFormat('es-MX', { style: 'currency', currency: data.monedaBase }).format(v);
 
