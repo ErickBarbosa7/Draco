@@ -147,6 +147,9 @@ export default function CotizadorPage() {
         if (cot.monedaBase && cot.monedaBase !== monedaActiva) {
           alternarMoneda();
         }
+        if (cot.tipoCambioAplicado && Number(cot.tipoCambioAplicado) !== 1) {
+          setTipoCambio(Number(cot.tipoCambioAplicado));
+        }
         const partidasCargadas: PartidaEditor[] =
           cot.partidas && cot.partidas.length > 0
             ? cot.partidas.map((p) => ({
@@ -518,6 +521,9 @@ export default function CotizadorPage() {
               className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
             />
           </div>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div>
             <label className="mb-1.5 block text-xs font-medium text-slate-400">Email</label>
             <input
@@ -528,16 +534,16 @@ export default function CotizadorPage() {
               className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
             />
           </div>
-        </div>
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-slate-400">Notas</label>
-          <input
-            type="text"
-            value={notas}
-            onChange={(e) => setNotas(e.target.value)}
-            placeholder="Notas adicionales"
-            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
-          />
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-slate-400">Notas adicionales</label>
+            <input
+              type="text"
+              value={notas}
+              onChange={(e) => setNotas(e.target.value)}
+              placeholder="Ej. Tiempo de entrega, garantía..."
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
+            />
+          </div>
         </div>
       </div>
 

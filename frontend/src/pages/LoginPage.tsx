@@ -128,41 +128,44 @@ export default function LoginPage() {
           {/* Formulario */}
           <form onSubmit={manejarSubmit} className="space-y-4">
             {modo === 'registro' && (
-              <div>
-                <label htmlFor="nombre" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  Nombre
-                </label>
+              <div className="relative">
                 <input
                   id="nombre"
                   type="text"
                   required
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
-                  placeholder="Tu nombre"
-                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-300 focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
+                  placeholder=" "
+                  className="peer w-full rounded-lg border border-gray-200 bg-transparent px-4 pb-2 pt-6 text-sm text-slate-900 outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
                 />
+                <label
+                  htmlFor="nombre"
+                  className="absolute left-4 top-4 z-10 origin-[0] -translate-y-3 scale-75 transform cursor-text font-semibold uppercase tracking-wider text-slate-400 duration-200 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-3 peer-focus:scale-75 peer-focus:text-slate-500"
+                >
+                  Nombre
+                </label>
               </div>
             )}
 
-            <div>
-              <label htmlFor="email" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Correo electrónico
-              </label>
+            <div className="relative">
               <input
                 id="email"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@draco.mx"
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-300 focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
+                placeholder=" "
+                className="peer w-full rounded-lg border border-gray-200 bg-transparent px-4 pb-2 pt-6 text-sm text-slate-900 outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
               />
+              <label
+                htmlFor="email"
+                className="absolute left-4 top-4 z-10 origin-[0] -translate-y-3 scale-75 transform cursor-text font-semibold uppercase tracking-wider text-slate-400 duration-200 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-3 peer-focus:scale-75 peer-focus:text-slate-500"
+              >
+                Correo electrónico
+              </label>
             </div>
 
-            <div>
-              <label htmlFor="password" className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Contraseña
-              </label>
+            <div className="relative">
               <input
                 id="password"
                 type="password"
@@ -170,9 +173,15 @@ export default function LoginPage() {
                 minLength={modo === 'registro' ? 6 : undefined}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={modo === 'registro' ? 'Mínimo 6 caracteres' : '••••••••'}
-                className="w-full rounded-lg border border-gray-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-300 focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
+                placeholder=" "
+                className="peer w-full rounded-lg border border-gray-200 bg-transparent px-4 pb-2 pt-6 text-sm text-slate-900 outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
               />
+              <label
+                htmlFor="password"
+                className="absolute left-4 top-4 z-10 origin-[0] -translate-y-3 scale-75 transform cursor-text font-semibold uppercase tracking-wider text-slate-400 duration-200 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-3 peer-focus:scale-75 peer-focus:text-slate-500"
+              >
+                Contraseña
+              </label>
             </div>
 
             <button

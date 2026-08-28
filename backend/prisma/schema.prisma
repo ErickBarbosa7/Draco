@@ -40,7 +40,6 @@ model Cotizacion {
   monedaBase         Moneda           @default(MXN) @map("moneda_base")
   tipoCambioAplicado Decimal          @default(1) @map("tipo_cambio_aplicado") @db.Decimal(12, 4)
   fechaCreacion      DateTime         @default(now()) @map("fecha_creacion")
-  vigenciaDias       Int              @default(30) @map("vigencia_dias")
   notas              String?
   subtotal           Decimal          @default(0) @db.Decimal(12, 2)
   total              Decimal          @default(0) @db.Decimal(12, 2)

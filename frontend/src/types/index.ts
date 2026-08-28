@@ -26,7 +26,6 @@ export interface Cotizacion {
   condicionesPago?: string;
   monedaBase?: Moneda;
   tipoCambioAplicado?: number | string;
-  vigenciaDias?: number;
   notas?: string;
   subtotal?: number | string;
   total?: number | string;

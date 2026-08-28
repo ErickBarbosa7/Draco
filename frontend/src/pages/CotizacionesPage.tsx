@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
-import { useAppStore } from '../store/useAppStore';
 import ConfirmDialog from '../components/ConfirmDialog';
 import type { Cotizacion } from '../types';
 import { toNumber } from '../types';
@@ -15,16 +14,19 @@ export default function CotizacionesPage() {
   const [cotAEliminar, setCotAEliminar] = useState<Cotizacion | null>(null);
   const [eliminando, setEliminando] = useState(false);
   const [busqueda, setBusqueda] = useState('');
-
-  const monedaActiva = useAppStore((s) => s.monedaActiva);
-  const tipoCambio = useAppStore((s) => s.tipoCambio);
-  const alternarMoneda = useAppStore((s) => s.alternarMoneda);
+  const [fechaInicio, setFechaInicio] = useState('');
+  const [fechaFin, setFechaFin] = useState('');
 
   useEffect(() => {
     async function cargar() {
       setCargando(true);
       try {
-        const data = await api.get<Cotizacion[]>('/cotizaciones');
+        const query = new URLSearchParams();
+        if (fechaInicio) query.append('fechaInicio', fechaInicio);
+        if (fechaFin) query.append('fechaFin', fechaFin);
+        const url = `/cotizaciones${query.toString() ? `?${query.toString()}` : ''}`;
+        
+        const data = await api.get<Cotizacion[]>(url);
         setCotizaciones(data);
       } catch (err) {
         toast.error(err instanceof Error ? err.message : 'Error al cargar cotizaciones');
@@ -33,7 +35,7 @@ export default function CotizacionesPage() {
       }
     }
     void cargar();
-  }, []);
+  }, [fechaInicio, fechaFin]);
 
   const cotizacionesFiltradas = useMemo(() => {
     const q = busqueda.trim().toLowerCase();
@@ -48,13 +50,13 @@ export default function CotizacionesPage() {
     );
   }, [cotizaciones, busqueda]);
 
-  function formatoMonto(valor: number | string | undefined): string {
-    const monto = toNumber(valor);
-    const ajustado = monedaActiva === 'USD' ? monto / tipoCambio : monto;
+  function formatoMonto(cot: Cotizacion): string {
+    const monto = toNumber(cot.total);
+    const moneda = cot.monedaBase || 'MXN';
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
-      currency: monedaActiva,
-    }).format(ajustado);
+      currency: moneda,
+    }).format(monto) + ` ${moneda}`;
   }
 
   async function descargarPdf(cot: Cotizacion) {
@@ -104,48 +106,45 @@ export default function CotizacionesPage() {
             </svg>
             Nueva Cotización
           </button>
-          <div className="flex rounded-full bg-white p-1">
-            {(['MXN', 'USD'] as const).map((moneda) => (
-              <button
-                key={moneda}
-                onClick={() => {
-                  if (monedaActiva !== moneda) alternarMoneda();
-                }}
-                className={`rounded-full px-5 py-2 text-sm font-medium transition ${
-                  monedaActiva === moneda
-                    ? 'bg-[#1e293b] text-white shadow-sm'
-                    : 'text-slate-500 hover:text-slate-900'
-                }`}
-              >
-                {moneda}
-              </button>
-            ))}
-          </div>
-          <div className="flex items-center gap-2 rounded-2xl border border-gray-200 bg-white px-3 py-2">
-            <span className="text-xs font-medium text-slate-400">Tipo de cambio</span>
-            <span className="text-xs text-slate-400">$</span>
-            <span className="text-sm font-semibold text-slate-900">{tipoCambio.toFixed(2)}</span>
-          </div>
         </div>
       </div>
 
-      {/* Búsqueda */}
-      <div className="relative">
-        <svg
-          className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <input
-          type="text"
-          placeholder="Buscar por folio, cliente, contacto o email…"
-          value={busqueda}
-          onChange={(e) => setBusqueda(e.target.value)}
-          className="w-full rounded-2xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
-        />
+      {/* Filtros */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <svg
+            className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar por folio, cliente, contacto o email…"
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            className="w-full rounded-2xl border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition placeholder:text-slate-400 focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="date"
+            value={fechaInicio}
+            onChange={(e) => setFechaInicio(e.target.value)}
+            className="rounded-2xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-slate-600 outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
+            title="Fecha Inicio"
+          />
+          <span className="text-slate-400">-</span>
+          <input
+            type="date"
+            value={fechaFin}
+            onChange={(e) => setFechaFin(e.target.value)}
+            className="rounded-2xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-slate-600 outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
+            title="Fecha Fin"
+          />
+        </div>
       </div>
 
       {/* Tabla dentro de tarjeta flotante */}
@@ -182,7 +181,7 @@ export default function CotizacionesPage() {
                       : '—'}
                   </td>
                   <td className="py-3 text-right font-medium text-slate-900">
-                    {formatoMonto(cot.total)}
+                    {formatoMonto(cot)}
                   </td>
                   <td className="py-3 text-right">
                     <div className="flex items-center justify-end gap-2">

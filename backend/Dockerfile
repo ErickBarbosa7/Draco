@@ -10,10 +10,9 @@ RUN apt-get update \
       --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
-# Configurar variables de entorno para que Puppeteer use el Chrome instalado
+# Configurar variables de entorno para Puppeteer
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable \
-    NODE_ENV=production
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
 
 # Establecer directorio de trabajo
 WORKDIR /usr/src/app
@@ -21,7 +20,7 @@ WORKDIR /usr/src/app
 # Copiar package.json y package-lock.json
 COPY package*.json ./
 
-# Instalar las dependencias de Node
+# Instalar las dependencias de Node (incluyendo devDependencies para compilar)
 RUN npm ci
 
 # Copiar el esquema de Prisma
@@ -35,6 +34,9 @@ COPY . .
 
 # Compilar el proyecto TypeScript
 RUN npm run build
+
+# Ahora sí, establecer el entorno de producción
+ENV NODE_ENV=production
 
 # Exponer el puerto
 EXPOSE 4000

@@ -31,7 +31,21 @@ function calcularPartidas(partidas: PartidaInput[]) {
 // GET /api/cotizaciones
 router.get('/', async (req, res) => {
   try {
+    const { fechaInicio, fechaFin } = req.query;
+    
+    // Construir la condición de filtrado por fecha
+    let whereClause = {};
+    if (fechaInicio || fechaFin) {
+      whereClause = {
+        fechaCreacion: {
+          ...(fechaInicio ? { gte: new Date(fechaInicio as string) } : {}),
+          ...(fechaFin ? { lte: new Date(fechaFin as string) } : {}),
+        },
+      };
+    }
+
     const cotizaciones = await prisma.cotizacion.findMany({
+      where: whereClause,
       include: { usuario: { select: { nombre: true } } },
       orderBy: { fechaCreacion: 'desc' },
     });
@@ -89,11 +103,9 @@ router.get('/:id/pdf', async (req, res) => {
       condicionesPago: cotizacion.condicionesPago ?? undefined,
       monedaBase: cotizacion.monedaBase,
       tipoCambioAplicado: Number(cotizacion.tipoCambioAplicado),
-      vigenciaDias: cotizacion.vigenciaDias,
       notas: cotizacion.notas ?? undefined,
       subtotal: Number(cotizacion.subtotal),
       total: Number(cotizacion.total),
-      vendedorNombre: cotizacion.usuario.nombre,
       partidas: cotizacion.partidas.map((p) => ({
         cantidad: p.cantidad,
         codigoProducto: p.codigoProducto ?? undefined,
@@ -127,7 +139,6 @@ router.post('/', async (req, res) => {
       condicionesPago,
       monedaBase,
       tipoCambioAplicado,
-      vigenciaDias,
       notas,
       partidas,
     } = req.body as {
@@ -138,7 +149,6 @@ router.post('/', async (req, res) => {
       condicionesPago?: string;
       monedaBase?: Moneda;
       tipoCambioAplicado?: number;
-      vigenciaDias?: number;
       notas?: string;
       partidas?: PartidaInput[];
     };
@@ -171,7 +181,6 @@ router.post('/', async (req, res) => {
         condicionesPago,
         monedaBase: monedaBase ?? 'MXN',
         tipoCambioAplicado: tipoCambioAplicado ?? 1,
-        vigenciaDias: vigenciaDias ?? 30,
         notas,
         subtotal,
         total: subtotal,
@@ -215,7 +224,7 @@ router.put('/:id', async (req, res) => {
       clienteContacto,
       clienteEmail,
       condicionesPago,
-      vigenciaDias,
+      tipoCambioAplicado,
       notas,
       partidas,
     } = req.body as {
@@ -224,7 +233,7 @@ router.put('/:id', async (req, res) => {
       clienteContacto?: string;
       clienteEmail?: string;
       condicionesPago?: string;
-      vigenciaDias?: number;
+      tipoCambioAplicado?: number;
       notas?: string;
       partidas?: PartidaInput[];
     };
@@ -246,7 +255,7 @@ router.put('/:id', async (req, res) => {
       clienteContacto: clienteContacto ?? existente.clienteContacto,
       clienteEmail: clienteEmail ?? existente.clienteEmail,
       condicionesPago: condicionesPago ?? existente.condicionesPago,
-      vigenciaDias: vigenciaDias ?? existente.vigenciaDias,
+      tipoCambioAplicado: tipoCambioAplicado ?? existente.tipoCambioAplicado,
       notas: notas ?? existente.notas,
     };
 
