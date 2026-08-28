@@ -19,11 +19,9 @@ interface CotizacionPDF {
   condicionesPago?: string;
   monedaBase: string;
   tipoCambioAplicado: number;
-  vigenciaDias: number;
   notas?: string;
   subtotal: number;
   total: number;
-  vendedorNombre: string;
   partidas: PartidaPDF[];
 }
 
