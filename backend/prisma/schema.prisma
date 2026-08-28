@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Rol {
+  ADMIN
+  VENDEDOR
+}
+
+enum Moneda {
+  MXN
+  USD
+}
+
+model Usuario {
+  id             Int      @id @default(autoincrement())
+  nombre         String
+  email          String   @unique
+  passwordHash   String   @map("password_hash")
+  rol            Rol      @default(VENDEDOR)
+  fechaCreacion  DateTime @default(now()) @map("fecha_creacion")
+  cotizaciones   Cotizacion[]
+
+  @@map("usuarios")
+}
+
+model Cotizacion {
+  id                 Int              @id @default(autoincrement())
+  folio              String           @unique
+  usuarioId          Int              @map("usuario_id")
+  clienteNombre      String           @map("cliente_nombre")
+  clienteContacto    String?          @map("cliente_contacto")
+  clienteEmail       String?          @map("cliente_email")
+  condicionesPago    String?          @map("condiciones_pago")
+  monedaBase         Moneda           @default(MXN) @map("moneda_base")
+  tipoCambioAplicado Decimal          @default(1) @map("tipo_cambio_aplicado") @db.Decimal(12, 4)
+  fechaCreacion      DateTime         @default(now()) @map("fecha_creacion")
+  vigenciaDias       Int              @default(30) @map("vigencia_dias")
+  notas              String?
+  subtotal           Decimal          @default(0) @db.Decimal(12, 2)
+  total              Decimal          @default(0) @db.Decimal(12, 2)
+  usuario            Usuario          @relation(fields: [usuarioId], references: [id])
+  partidas           Partida[]
+
+  @@map("cotizaciones")
+}
+
+model Partida {
+  id              Int      @id @default(autoincrement())
+  cotizacionId    Int      @map("cotizacion_id")
+  cantidad        Int      @default(1)
+  codigoProducto  String?  @map("codigo_producto")
+  descripcion     String
+  imagenUrl       String?  @map("imagen_url")
+  precioUnitario  Decimal  @map("precio_unitario") @db.Decimal(12, 2)
+  totalPartida    Decimal  @map("total_partida") @db.Decimal(12, 2)
+  cotizacion      Cotizacion @relation(fields: [cotizacionId], references: [id], onDelete: Cascade)
+
+  @@map("partidas")
+}
