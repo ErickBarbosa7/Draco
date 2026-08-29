@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../lib/prisma.js';
 import type { JwtPayload } from '../middleware/auth.middleware.js';
+import { verificarToken } from '../middleware/auth.middleware.js';
 
 const JWT_SECRET = process.env.JWT_SECRET ?? 'draco-dev-secret';
 const router = Router();
@@ -84,12 +85,12 @@ router.post('/register', async (req, res) => {
   }
 });
 
-import { authMiddleware } from '../middleware/auth.middleware.js';
+
 
 // PUT /api/auth/perfil
-router.put('/perfil', authMiddleware, async (req: any, res) => {
+router.put('/perfil', verificarToken, async (req: any, res) => {
   try {
-    const userId = req.user.sub;
+    const userId = req.usuario.sub;
     const { nombre, email, password } = req.body as { nombre?: string; email?: string; password?: string };
 
     if (!nombre || !email) {
