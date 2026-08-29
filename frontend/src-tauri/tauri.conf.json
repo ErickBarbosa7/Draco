@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "draco",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "identifier": "com.draco.app",
   "build": {
     "frontendDist": "../dist",

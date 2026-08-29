@@ -109,13 +109,33 @@ export const api = {
     }
 
     const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const arrayBuffer = await blob.arrayBuffer();
+
+    // Check if running inside Tauri
+    if ('__TAURI_INTERNALS__' in window) {
+      const { save } = await import('@tauri-apps/plugin-dialog');
+      const { writeFile } = await import('@tauri-apps/plugin-fs');
+
+      const filePath = await save({
+        defaultPath: filename,
+        filters: [{
+          name: 'PDF',
+          extensions: ['pdf']
+        }]
+      });
+
+      if (filePath) {
+        await writeFile(filePath, new Uint8Array(arrayBuffer));
+      }
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
   },
 };
