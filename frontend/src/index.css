@@ -34,3 +34,12 @@
 body {
   @apply bg-[#f1f5f9] text-slate-900 antialiased;
 }
+
+button, 
+a, 
+[role="button"],
+select,
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+}

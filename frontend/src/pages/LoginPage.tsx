@@ -52,11 +52,11 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#e8e9eb] p-4 font-sans text-sm">
       {/* Contenedor principal estilo tarjeta */}
-      <div className="relative flex w-full max-w-[1000px] overflow-hidden rounded-[32px] bg-white p-3 shadow-2xl">
+      <div className="relative flex w-full max-w-[1200px] min-h-[700px] overflow-hidden rounded-[32px] bg-white p-3 shadow-2xl">
         
         {/* ---------------- Panel izquierdo: Animación Lottie ---------------- */}
         <aside className="relative hidden w-1/2 flex-col items-center justify-center overflow-hidden rounded-[24px] bg-[#0a0a0a] p-8 md:flex">
-          <Lottie src={animationData} loop={true} autoplay={true} className="w-full max-w-[400px]" />
+          <Lottie src={animationData} loop={true} autoplay={true} className="w-full max-w-[500px]" />
         </aside>
 
         {/* ---------------- Panel derecho: Formulario ---------------- */}
@@ -70,17 +70,17 @@ export default function LoginPage() {
           </div>
 
           {/* Área central del formulario */}
-          <div className="mx-auto mt-8 w-full max-w-sm flex-1">
-            <div className="mb-8 text-center">
-              <h1 className="text-3xl font-extrabold text-gray-900">
+          <div className="mx-auto mt-12 w-full max-w-md flex-1">
+            <div className="mb-12 text-center">
+              <h1 className="text-4xl font-extrabold text-gray-900">
                 {modo === 'login' ? 'Welcome Back!' : 'Create Account'}
               </h1>
-              <p className="mt-1 text-sm font-medium text-gray-500">
+              <p className="mt-2 text-base font-medium text-gray-500">
                 {modo === 'login' ? 'welcome to Draco' : 'join our dark side'}
               </p>
             </div>
 
-            <form onSubmit={manejarSubmit} className="space-y-4">
+            <form onSubmit={manejarSubmit} className="space-y-5">
               {modo === 'registro' && (
                 <Campo 
                   id="nombre" 
@@ -112,7 +112,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={cargando}
-                className="mt-8 flex w-full items-center justify-center rounded-full bg-[#111827] py-3 text-sm font-bold text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-70"
+                className="mt-8 flex w-full items-center justify-center rounded-full bg-[#111827] py-4 text-base font-bold tracking-wide text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-70 shadow-lg hover:shadow-xl"
               >
                 {cargando 
                   ? 'Processing...' 
@@ -120,7 +120,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <p className="mt-6 text-center text-xs font-semibold text-gray-500">
+            <p className="mt-8 text-center text-sm font-semibold text-gray-500">
               {modo === 'login' ? "Don't have an account? " : "Already have an account? "}
               <button
                 type="button"
@@ -145,7 +145,7 @@ export default function LoginPage() {
 function Campo({
   id,
   label,
-  type,
+  type: initialType,
   value,
   onChange,
   required,
@@ -159,6 +159,10 @@ function Campo({
   required?: boolean;
   minLength?: number;
 }) {
+  const [mostrarPwd, setMostrarPwd] = useState(false);
+  const esPassword = initialType === 'password';
+  const type = esPassword ? (mostrarPwd ? 'text' : 'password') : initialType;
+
   return (
     <div className="relative">
       <input
@@ -169,14 +173,33 @@ function Campo({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder=" "
-        className="peer w-full rounded-lg border border-gray-200 bg-transparent px-4 pb-2 pt-6 text-sm outline-none transition-all placeholder:text-transparent focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
+        className="peer w-full rounded-xl border border-gray-200 bg-transparent px-4 pb-2 pt-6 text-sm outline-none transition-all placeholder:text-transparent focus:border-gray-900 focus:ring-1 focus:ring-gray-900 pr-11"
       />
       <label
         htmlFor={id}
-        className="pointer-events-none absolute left-4 top-2 text-xs font-bold text-gray-500 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-xs peer-focus:font-bold peer-focus:text-gray-900"
+        className="pointer-events-none absolute left-4 top-2 text-[11px] font-bold text-gray-500 transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-placeholder-shown:font-normal peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-[11px] peer-focus:font-bold peer-focus:text-gray-900"
       >
         {label}
       </label>
+      
+      {esPassword && (
+        <button
+          type="button"
+          onClick={() => setMostrarPwd(!mostrarPwd)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+        >
+          {mostrarPwd ? (
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.29 3.29m0 0a10.05 10.05 0 015.188-1.58c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0l-3.29-3.29" />
+            </svg>
+          ) : (
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          )}
+        </button>
+      )}
     </div>
   );
 }

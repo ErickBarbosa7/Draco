@@ -34,13 +34,11 @@ router.get('/', async (req, res) => {
     const { fechaInicio, fechaFin } = req.query;
     
     // Construir la condición de filtrado por fecha
-    let whereClause = {};
+    let whereClause: any = { usuarioId: req.usuario!.sub };
     if (fechaInicio || fechaFin) {
-      whereClause = {
-        fechaCreacion: {
-          ...(fechaInicio ? { gte: new Date(fechaInicio as string) } : {}),
-          ...(fechaFin ? { lte: new Date(fechaFin as string) } : {}),
-        },
+      whereClause.fechaCreacion = {
+        ...(fechaInicio ? { gte: new Date(fechaInicio as string) } : {}),
+        ...(fechaFin ? { lte: new Date(fechaFin as string) } : {}),
       };
     }
 
@@ -65,7 +63,7 @@ router.get('/:id', async (req, res) => {
       include: { partidas: true, usuario: { select: { nombre: true, email: true } } },
     });
 
-    if (!cotizacion) {
+    if (!cotizacion || cotizacion.usuarioId !== req.usuario!.sub) {
       res.status(404).json({ error: 'Cotización no encontrada' });
       return;
     }
@@ -85,7 +83,7 @@ router.get('/:id/pdf', async (req, res) => {
       include: { partidas: true, usuario: { select: { nombre: true } } },
     });
 
-    if (!cotizacion) {
+    if (!cotizacion || cotizacion.usuarioId !== req.usuario!.sub) {
       res.status(404).json({ error: 'Cotización no encontrada' });
       return;
     }
@@ -210,10 +208,10 @@ router.put('/:id', async (req, res) => {
   try {
     const existente = await prisma.cotizacion.findUnique({
       where: { id: Number(req.params.id) },
- include: { partidas: true },
+      include: { partidas: true },
     });
 
-    if (!existente) {
+    if (!existente || existente.usuarioId !== req.usuario!.sub) {
       res.status(404).json({ error: 'Cotización no encontrada' });
       return;
     }
@@ -310,7 +308,7 @@ router.delete('/:id', async (req, res) => {
       where: { id: Number(req.params.id) },
     });
 
-    if (!existente) {
+    if (!existente || existente.usuarioId !== req.usuario!.sub) {
       res.status(404).json({ error: 'Cotización no encontrada' });
       return;
     }
