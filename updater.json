@@ -1,15 +1,15 @@
 {
-  "version": "1.0.8",
-  "notes": "Actualización OTA",
-  "pub_date": "2026-08-29T03:24:44Z",
+  "version": "1.0.12",
+  "notes": "Actualización OTA PDF",
+  "pub_date": "2026-08-29T03:59:08Z",
   "platforms": {
     "linux-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUWszUFNtN3VDYTBRY3lFOThDdFdWWWtoL05YT000SS80NDVEUFd3bnhFZEhGUTR5M0dJd1cvZG94R09UcnQyazZMNWg4Yit4YUpYdlpXcTg1dE9INXdBR05wZEQvSEEwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3OTczODA4CWZpbGU6ZHJhY29fMS4wLjhfYW1kNjQuQXBwSW1hZ2UudGFyLmd6CjVrbm54OFg0ckpuVzNtdkZsR1BGQ2M2V0JmOVR1V2s0WFMya0hTUUZoU3hVTkd0S0MxdUFWZnZyOENUbjZpWSsrdXRXUjBETzFkdlFzRHp0OGI0a0JnPT0K",
-      "url": "https://github.com/ErickBarbosa7/Draco/releases/download/v1.0.8/draco_1.0.8_amd64.AppImage.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUWszUFNtN3VDYTdHSXMyR1lzdEx5MkxRMXF2cEs3MDc4ZWhHRnlNVG5tUWxrWU5SMk5kWmRBcEIxb2s4OXRYNmpkZXVNMkxLUUQrcUVWZUdmRjVqTnpjMVBOYWlJSEFzPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3OTc1ODkxCWZpbGU6ZHJhY29fMS4wLjEyX2FtZDY0LkFwcEltYWdlLnRhci5negp2ci9nZTZ4RUY3Smpla0oyZHZqOVRJczUwZlN4ZE1sVnF1c3RjSFJJbGI2VFdnTXQwWG9PVXkrWHRheld4SlU5dk85dTU2Zm5IN1QvWkRXaGRva3dEQT09Cg==",
+      "url": "https://github.com/ErickBarbosa7/Draco/releases/download/v1.0.12/draco_1.0.12_amd64.AppImage.tar.gz"
     },
     "windows-x86_64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUWszUFNtN3VDYTJtVHpsTG5YTGdveUptaS9xeWYxbGE4NzFadXVlcHd0NGdYSUU0MUtDbXgvRFpqNEdOdkh4UnVNOVJKR3lHbXQzTEc1dVhRSzZUVEE0L0ZkTUowS3cwPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3OTczODA5CWZpbGU6ZHJhY29fMS4wLjhfeDY0LXNldHVwLm5zaXMuemlwCkhBRXBHUkpCdGRvcDBvUlFpMjlneVl4SFNhZ2xkeU9FSE5xSXNQbVdscDlnVUpJZzEzd3R6VGcybVRHS29QallWdTdMTkRwMmhLS1BkeTNML1JIeENnPT0K",
-      "url": "https://github.com/ErickBarbosa7/Draco/releases/download/v1.0.8/draco_1.0.8_x64-setup.nsis.zip"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVSUWszUFNtN3VDYXdIZCsyZUtwTTFoeWF1QXFoSUltRjNZRTRyVVg5b0tGTVp1RkUrdWZ4MWQrQjVPV1phY2VXVFpPSktITGptYXBFZFJFZGZPMk04VFA1UE1HY25sQWd3PQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzg3OTc1ODkyCWZpbGU6ZHJhY29fMS4wLjEyX3g2NC1zZXR1cC5uc2lzLnppcAp4VUJHM0tVbjFTMnRWVmJ2Q3R3TjdaUExLZFprcDFhSEU3L3lHNlVjUXJnNzJQenBTMFIyVVZyQ2JkdUFLV3J6cDhqdjZILzVKTHpVck9pakEwUFNCZz09Cg==",
+      "url": "https://github.com/ErickBarbosa7/Draco/releases/download/v1.0.12/draco_1.0.12_x64-setup.nsis.zip"
     }
   }
 }
