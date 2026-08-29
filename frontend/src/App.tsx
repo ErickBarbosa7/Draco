@@ -3,7 +3,7 @@ import { useAppStore } from './store/useAppStore';
 import { useEffect, type ReactNode } from 'react';
 import { check } from '@tauri-apps/plugin-updater';
 import { relaunch } from '@tauri-apps/plugin-process';
-import { ask, message } from '@tauri-apps/plugin-dialog';
+import { ask } from '@tauri-apps/plugin-dialog';
 import toast from 'react-hot-toast';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
