@@ -64,9 +64,15 @@ export default function LoginPage() {
           
           {/* Encabezado: Logo */}
           <div className="flex w-full items-center justify-between">
-            <h2 className="text-xl font-black uppercase tracking-widest text-gray-900">
-              DRACO
-            </h2>
+            <div className="flex items-center gap-2">
+              <svg className="h-6 w-6" viewBox="0 0 512 512">
+                <rect width="512" height="512" rx="110" fill="#0f172a"/>
+                <path d="M160 120h90c80 0 140 40 140 136s-60 136-140 136h-90V120z" fill="none" stroke="#ffffff" strokeWidth="48" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <h2 className="text-xl font-black uppercase tracking-widest text-gray-900">
+                DRACO
+              </h2>
+            </div>
           </div>
 
           {/* Área central del formulario */}

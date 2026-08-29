@@ -18,7 +18,13 @@ export default function Layout() {
       <header className="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-8">
-            <span className="text-lg font-bold tracking-tight text-slate-900">Draco</span>
+            <div className="flex items-center gap-2.5">
+              <svg className="h-7 w-7" viewBox="0 0 512 512">
+                <rect width="512" height="512" rx="110" fill="#0f172a"/>
+                <path d="M160 120h90c80 0 140 40 140 136s-60 136-140 136h-90V120z" fill="none" stroke="#ffffff" strokeWidth="48" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span className="text-xl font-black tracking-tight text-slate-900">Draco</span>
+            </div>
             <nav className="flex items-center gap-1">
               <button
                 className={`rounded-full px-5 py-2 text-sm font-medium transition ${
