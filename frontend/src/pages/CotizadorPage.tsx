@@ -616,7 +616,7 @@ export default function CotizadorPage() {
         </button>
         <button
           onClick={() => navigate('/')}
-          className="rounded-full border border-gray-200 px-7 py-3 text-sm font-medium text-slate-600 transition hover:bg-gray-50"
+          className="rounded-full bg-red-600 px-7 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
         >
           Cancelar
         </button>

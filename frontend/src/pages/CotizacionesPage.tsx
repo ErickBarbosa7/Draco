@@ -144,6 +144,18 @@ export default function CotizacionesPage() {
             className="rounded-2xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-slate-600 outline-none transition focus:border-[#3b82f6] focus:ring-2 focus:ring-[#3b82f6]/20"
             title="Fecha Fin"
           />
+          {(fechaInicio || fechaFin || busqueda) && (
+            <button
+              onClick={() => {
+                setFechaInicio('');
+                setFechaFin('');
+                setBusqueda('');
+              }}
+              className="ml-2 rounded-2xl bg-gray-100 px-4 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-200"
+            >
+              Borrar filtros
+            </button>
+          )}
         </div>
       </div>
 

@@ -1,11 +1,14 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useAppStore } from '../store/useAppStore';
+import PerfilModal from './PerfilModal';
 
 export default function Layout() {
   const usuario = useAppStore((s) => s.usuario);
   const cerrarSesion = useAppStore((s) => s.cerrarSesion);
   const navigate = useNavigate();
   const location = useLocation();
+  const [perfilOpen, setPerfilOpen] = useState(false);
 
   const esSeccionActiva = (ruta: string) => location.pathname === ruta;
 
@@ -40,10 +43,13 @@ export default function Layout() {
             </nav>
           </div>
 
-          <div className="flex items-center gap-4">
-            <span className="hidden text-sm text-slate-500 sm:block">
-              {usuario?.nombre ?? 'Usuario'}
-            </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPerfilOpen(true)}
+              className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+            >
+              {usuario?.nombre ?? 'Perfil'}
+            </button>
             <button
               onClick={() => {
                 cerrarSesion();
@@ -61,6 +67,8 @@ export default function Layout() {
       <main className="mx-auto max-w-7xl px-6 py-8">
         <Outlet />
       </main>
+
+      <PerfilModal open={perfilOpen} onClose={() => setPerfilOpen(false)} />
     </div>
   );
 }

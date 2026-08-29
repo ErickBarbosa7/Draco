@@ -84,4 +84,44 @@ router.post('/register', async (req, res) => {
   }
 });
 
+import { authMiddleware } from '../middleware/auth.middleware.js';
+
+// PUT /api/auth/perfil
+router.put('/perfil', authMiddleware, async (req: any, res) => {
+  try {
+    const userId = req.user.sub;
+    const { nombre, email, password } = req.body as { nombre?: string; email?: string; password?: string };
+
+    if (!nombre || !email) {
+      res.status(400).json({ error: 'Nombre y email son requeridos' });
+      return;
+    }
+
+    // Verificar si el nuevo email ya está en uso por otro usuario
+    const existe = await prisma.usuario.findUnique({ where: { email } });
+    if (existe && existe.id !== userId) {
+      res.status(409).json({ error: 'El email ya está en uso por otra cuenta' });
+      return;
+    }
+
+    const dataToUpdate: any = { nombre, email };
+
+    if (password && password.length >= 6) {
+      dataToUpdate.passwordHash = await bcrypt.hash(password, 10);
+    }
+
+    const usuario = await prisma.usuario.update({
+      where: { id: userId },
+      data: dataToUpdate
+    });
+
+    res.json({
+      usuario: { id: usuario.id, nombre: usuario.nombre, email: usuario.email, rol: usuario.rol }
+    });
+  } catch (error) {
+    console.error('Error al actualizar perfil:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+});
+
 export default router;
