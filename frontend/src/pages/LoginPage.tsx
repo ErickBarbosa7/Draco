@@ -88,7 +88,6 @@ export default function LoginPage() {
                   type="text" 
                   value={nombre} 
                   onChange={setNombre} 
-                  placeholder="Enter your name" 
                   required 
                 />
               )}
@@ -98,7 +97,6 @@ export default function LoginPage() {
                 type="email" 
                 value={email} 
                 onChange={setEmail} 
-                placeholder="Enter your email" 
                 required 
               />
               <Campo
@@ -107,7 +105,6 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={setPassword}
-                placeholder="Enter your password"
                 required
                 minLength={modo === 'registro' ? 6 : undefined}
               />
