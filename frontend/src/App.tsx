@@ -3,6 +3,8 @@ import { useAppStore } from './store/useAppStore';
 import { useEffect, type ReactNode } from 'react';
 import { check } from '@tauri-apps/plugin-updater';
 import { relaunch } from '@tauri-apps/plugin-process';
+import { ask, message } from '@tauri-apps/plugin-dialog';
+import toast from 'react-hot-toast';
 import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 import CotizacionesPage from './pages/CotizacionesPage';
@@ -20,9 +22,14 @@ export default function App() {
       try {
         const update = await check();
         if (update) {
-          const confirm = window.confirm(`Hay una nueva versión disponible de Draco (${update.version}). ¿Deseas descargar e instalar la actualización ahora?`);
+          const confirm = await ask(
+            `Hay una nueva versión disponible de Draco (${update.version}).\n\n¿Deseas descargar e instalar la actualización ahora?`,
+            { title: 'Actualización Disponible', kind: 'info' }
+          );
           if (confirm) {
+            toast.loading('Descargando actualización... Por favor espera.', { id: 'update-toast' });
             await update.downloadAndInstall();
+            toast.success('Actualización instalada. Reiniciando...', { id: 'update-toast' });
             await relaunch();
           }
         }
