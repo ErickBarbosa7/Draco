@@ -56,7 +56,7 @@ export default function LoginPage() {
         
         {/* ---------------- Panel izquierdo: Animación Lottie ---------------- */}
         <aside className="relative hidden w-1/2 flex-col items-center justify-center overflow-hidden rounded-[24px] bg-[#0a0a0a] p-8 md:flex">
-          <Lottie src={animationData} loop={true} className="w-full max-w-[400px]" />
+          <Lottie src={animationData} loop={true} autoplay={true} className="w-full max-w-[400px]" />
         </aside>
 
         {/* ---------------- Panel derecho: Formulario ---------------- */}
