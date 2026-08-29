@@ -27,7 +27,7 @@
     "updater": {
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDZCODJCQjlCRDI3MzkzNTAKUldSUWszUFNtN3VDYTdMWHA3ZEZSNVNpSG9FMXRtOSs0SEg1b3B2MmN3VG9PMjk2V20vRXRrVUwK",
       "endpoints": [
-        "https://raw.githubusercontent.com/ErickBarbosa7/Draco/main/updater.json"
+        "https://github.com/ErickBarbosa7/Draco/releases/latest/download/latest.json"
       ],
       "dialog": true
     }
