@@ -31,7 +31,7 @@ export default function App() {
       }
     }
     // Solo comprueba en Tauri, si está en navegador ignora
-    if (window.__TAURI_INTERNALS__) {
+    if ('__TAURI_INTERNALS__' in window) {
       checkForUpdates();
     }
   }, []);
