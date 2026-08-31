@@ -75,11 +75,19 @@ jobs:
               tag,
             });
             const names = release.data.assets.map((a) => a.name);
-            const needsManifest = names.some((n) => n.endsWith('.tar.gz'));
-            if (needsManifest && !names.includes('latest.json')) {
+
+            // El updater de la app depende de estos artefactos. Sin ellos el
+            // actualizador no funciona y el release es inútil para las apps
+            // instaladas, por eso el workflow debe fallar.
+            const hasSigBundle = names.some((n) => n.endsWith('.tar.gz') && names.includes(n + '.sig'));
+            if (!names.includes('latest.json') || !hasSigBundle) {
+              const problemas = [];
+              if (!names.includes('latest.json')) problemas.push('falta latest.json');
+              if (!hasSigBundle) problemas.push('no se generaron los .tar.gz/.sig firmados');
               throw new Error(
-                'El updater requiere el manifiesto latest.json. ' +
-                'Verifica que el secreto TAURI_PRIVATE_KEY esté configurado correctamente.',
+                `Release roto para el updater (${problemas.join(', ')}). ` +
+                'Confirma que los secrets TAURI_PRIVATE_KEY y TAURI_PRIVATE_KEY_PASSWORD ' +
+                'estén configurados y sean un par válido en Settings → Secrets → Actions.',
               );
             }
-            console.log(`Release ${tag} tiene ${names.length} assets.`);
+            console.log(`Release ${tag} OK: latest.json + bundles firmados presentes (${names.length} assets).`);
