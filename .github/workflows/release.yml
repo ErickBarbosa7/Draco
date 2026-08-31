@@ -76,18 +76,25 @@ jobs:
             });
             const names = release.data.assets.map((a) => a.name);
 
-            // El updater de la app depende de estos artefactos. Sin ellos el
-            // actualizador no funciona y el release es inútil para las apps
-            // instaladas, por eso el workflow debe fallar.
-            const hasSigBundle = names.some((n) => n.endsWith('.tar.gz') && names.includes(n + '.sig'));
-            if (!names.includes('latest.json') || !hasSigBundle) {
-              const problemas = [];
-              if (!names.includes('latest.json')) problemas.push('falta latest.json');
-              if (!hasSigBundle) problemas.push('no se generaron los .tar.gz/.sig firmados');
+            // El updater depende del manifiesto latest.json. Sin él el
+            // actualizador no funciona, por eso el workflow debe fallar.
+            const manifestAsset = release.data.assets.find((a) => a.name === 'latest.json');
+            if (!manifestAsset) {
               throw new Error(
-                `Release roto para el updater (${problemas.join(', ')}). ` +
-                'Confirma que los secrets TAURI_PRIVATE_KEY y TAURI_PRIVATE_KEY_PASSWORD ' +
-                'estén configurados y sean un par válido en Settings → Secrets → Actions.',
+                'Release roto para el updater: falta latest.json. ' +
+                'Confirma que bundle.createUpdaterArtifacts esté en true y que los ' +
+                'secrets TAURI_PRIVATE_KEY / TAURI_PRIVATE_KEY_PASSWORD sean un par ' +
+                'válido en Settings → Secrets → Actions.',
               );
             }
-            console.log(`Release ${tag} OK: latest.json + bundles firmados presentes (${names.length} assets).`);
+
+            // Valida que el manifest corresponda a esta versión y tenga firmas.
+            const manifest = await github.request(manifestAsset.browser_download_url).then((r) => r.data);
+            if (manifest.version !== tag.substring(1)) {
+              throw new Error(`latest.json version ${manifest.version} no coincide con el tag ${tag}.`);
+            }
+            const platforms = Object.values(manifest.platforms || {});
+            if (platforms.length === 0 || platforms.some((p) => !p.signature)) {
+              throw new Error('latest.json no contiene plataformas firmadas.');
+            }
+            console.log(`Release ${tag} OK: latest.json con ${platforms.length} plataformas firmadas (${names.length} assets).`);
