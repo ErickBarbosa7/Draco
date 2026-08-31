@@ -1,45 +1,42 @@
-FROM node:20-slim
+# ---- Stage 1: Build ----
+FROM node:20-slim AS build
 
-# Instalar dependencias necesarias para Google Chrome y Puppeteer
+# Dependencias para instalar Google Chrome (para compilar no hace falta, pero sí para runtime)
+WORKDIR /app
+
+COPY package*.json ./
+COPY prisma ./prisma/
+RUN npm ci && npx prisma generate
+
+COPY . .
+RUN npm run build
+
+# ---- Stage 2: Runtime ----
+FROM node:20-slim AS runtime
+
+# Dependencias de runtime de Puppeteer / Google Chrome
 RUN apt-get update \
-    && apt-get install -y wget gnupg \
+    && apt-get install -y wget gnupg ca-certificates \
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/googlechrome-linux-keyring.gpg \
     && sh -c 'echo "deb [arch=amd64 signed-by=/usr/share/keyrings/googlechrome-linux-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
     && apt-get update \
     && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
       --no-install-recommends \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd -r app && useradd -r -g app -m app
 
-# Configurar variables de entorno para Puppeteer
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable \
+    NODE_ENV=production
 
-# Establecer directorio de trabajo
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# Copiar package.json y package-lock.json
 COPY package*.json ./
-
-# Instalar las dependencias de Node (incluyendo devDependencies para compilar)
-RUN npm ci
-
-# Copiar el esquema de Prisma
 COPY prisma ./prisma/
+RUN npm ci --omit=dev && npx prisma generate
 
-# Generar el cliente de Prisma
-RUN npx prisma generate
+COPY --from=build /app/dist ./dist
 
-# Copiar el resto del código del backend
-COPY . .
-
-# Compilar el proyecto TypeScript
-RUN npm run build
-
-# Ahora sí, establecer el entorno de producción
-ENV NODE_ENV=production
-
-# Exponer el puerto
+USER app
 EXPOSE 4000
-
-# Comando para iniciar la aplicación
-CMD [ "npm", "start" ]
+CMD [ "node", "dist/index.js" ]

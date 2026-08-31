@@ -1,7 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET ?? 'draco-dev-secret';
+import { config } from '../lib/config.js';
 
 export interface JwtPayload {
   sub: number;
@@ -18,6 +17,12 @@ declare global {
   }
 }
 
+export function firmaToken(payload: JwtPayload): string {
+  return jwt.sign(payload, config.jwtSecret, {
+    expiresIn: '8h',
+  } as jwt.SignOptions);
+}
+
 export function verificarToken(req: Request, res: Response, next: NextFunction): void {
   const header = req.headers.authorization;
 
@@ -26,13 +31,27 @@ export function verificarToken(req: Request, res: Response, next: NextFunction):
     return;
   }
 
-  const token = header.slice(7);
+  const token = header.slice('Bearer '.length);
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as unknown as JwtPayload;
+    const payload = jwt.verify(token, config.jwtSecret) as unknown as JwtPayload;
     req.usuario = payload;
     next();
   } catch {
     res.status(401).json({ error: 'Token inválido o expirado' });
   }
+}
+
+export function verificarRol(...roles: string[]) {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    if (!req.usuario) {
+      res.status(401).json({ error: 'No autenticado' });
+      return;
+    }
+    if (!roles.includes(req.usuario.rol)) {
+      res.status(403).json({ error: 'No tienes permisos para realizar esta acción' });
+      return;
+    }
+    next();
+  };
 }

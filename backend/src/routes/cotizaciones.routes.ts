@@ -2,18 +2,14 @@ import { Router } from 'express';
 import { prisma } from '../lib/prisma.js';
 import { verificarToken } from '../middleware/auth.middleware.js';
 import { generarPDF } from '../services/pdf.service.js';
+import { cotizacionSchema, partidaSchema } from '../lib/validators.js';
+import type { z } from 'zod';
 import type { Moneda } from '@prisma/client';
 
 const router = Router();
 router.use(verificarToken);
 
-interface PartidaInput {
-  cantidad: number;
-  codigoProducto?: string;
-  descripcion: string;
-  imagenUrl?: string;
-  precioUnitario: number;
-}
+type PartidaInput = z.infer<typeof partidaSchema>;
 
 function generarFolio(): string {
   const anio = new Date().getFullYear();
@@ -32,9 +28,12 @@ function calcularPartidas(partidas: PartidaInput[]) {
 router.get('/', async (req, res) => {
   try {
     const { fechaInicio, fechaFin } = req.query;
-    
-    // Construir la condición de filtrado por fecha
-    let whereClause: any = { usuarioId: req.usuario!.sub };
+
+    const whereClause: {
+      usuarioId: number;
+      fechaCreacion?: { gte?: Date; lte?: Date };
+    } = { usuarioId: req.usuario!.sub };
+
     if (fechaInicio || fechaFin) {
       whereClause.fechaCreacion = {
         ...(fechaInicio ? { gte: new Date(fechaInicio as string) } : {}),
@@ -58,8 +57,14 @@ router.get('/', async (req, res) => {
 // GET /api/cotizaciones/:id
 router.get('/:id', async (req, res) => {
   try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) {
+      res.status(400).json({ error: 'ID inválido' });
+      return;
+    }
+
     const cotizacion = await prisma.cotizacion.findUnique({
-      where: { id: Number(req.params.id) },
+      where: { id },
       include: { partidas: true, usuario: { select: { nombre: true, email: true } } },
     });
 
@@ -78,8 +83,14 @@ router.get('/:id', async (req, res) => {
 // GET /api/cotizaciones/:id/pdf
 router.get('/:id/pdf', async (req, res) => {
   try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) {
+      res.status(400).json({ error: 'ID inválido' });
+      return;
+    }
+
     const cotizacion = await prisma.cotizacion.findUnique({
-      where: { id: Number(req.params.id) },
+      where: { id },
       include: { partidas: true, usuario: { select: { nombre: true } } },
     });
 
@@ -119,16 +130,19 @@ router.get('/:id/pdf', async (req, res) => {
     res.send(pdfBuffer);
   } catch (error) {
     console.error('Error al generar PDF:', error);
-    res.status(500).json({
-      error: 'Error al generar el PDF',
-      detalle: error instanceof Error ? error.message : String(error),
-    });
+    res.status(500).json({ error: 'Error al generar el PDF' });
   }
 });
 
 // POST /api/cotizaciones
 router.post('/', async (req, res) => {
   try {
+    const parsed = cotizacionSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Datos inválidos' });
+      return;
+    }
+
     const {
       folio,
       clienteNombre,
@@ -139,28 +153,11 @@ router.post('/', async (req, res) => {
       tipoCambioAplicado,
       notas,
       partidas,
-    } = req.body as {
-      folio?: string;
-      clienteNombre?: string;
-      clienteContacto?: string;
-      clienteEmail?: string;
-      condicionesPago?: string;
-      monedaBase?: Moneda;
-      tipoCambioAplicado?: number;
-      notas?: string;
-      partidas?: PartidaInput[];
-    };
-
-    if (!clienteNombre || !partidas || partidas.length === 0) {
-      res.status(400).json({ error: 'clienteNombre y al menos una partida son requeridos' });
-      return;
-    }
+    } = parsed.data;
 
     const folioFinal = (folio ?? '').trim() || generarFolio();
 
-    const existeFolio = await prisma.cotizacion.findUnique({
-      where: { folio: folioFinal },
-    });
+    const existeFolio = await prisma.cotizacion.findUnique({ where: { folio: folioFinal } });
     if (existeFolio) {
       res.status(409).json({ error: `El folio «${folioFinal}» ya está en uso` });
       return;
@@ -177,7 +174,7 @@ router.post('/', async (req, res) => {
         clienteContacto,
         clienteEmail,
         condicionesPago,
-        monedaBase: monedaBase ?? 'MXN',
+        monedaBase: (monedaBase as Moneda | undefined) ?? 'MXN',
         tipoCambioAplicado: tipoCambioAplicado ?? 1,
         notas,
         subtotal,
@@ -206,13 +203,25 @@ router.post('/', async (req, res) => {
 // PUT /api/cotizaciones/:id
 router.put('/:id', async (req, res) => {
   try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) {
+      res.status(400).json({ error: 'ID inválido' });
+      return;
+    }
+
     const existente = await prisma.cotizacion.findUnique({
-      where: { id: Number(req.params.id) },
+      where: { id },
       include: { partidas: true },
     });
 
     if (!existente || existente.usuarioId !== req.usuario!.sub) {
       res.status(404).json({ error: 'Cotización no encontrada' });
+      return;
+    }
+
+    const parsed = cotizacionSchema.partial().safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Datos inválidos' });
       return;
     }
 
@@ -225,16 +234,7 @@ router.put('/:id', async (req, res) => {
       tipoCambioAplicado,
       notas,
       partidas,
-    } = req.body as {
-      folio?: string;
-      clienteNombre?: string;
-      clienteContacto?: string;
-      clienteEmail?: string;
-      condicionesPago?: string;
-      tipoCambioAplicado?: number;
-      notas?: string;
-      partidas?: PartidaInput[];
-    };
+    } = parsed.data;
 
     const folioFinal = folio ? folio.trim() : undefined;
     if (folioFinal) {
@@ -263,7 +263,6 @@ router.put('/:id', async (req, res) => {
       data.subtotal = subtotal;
       data.total = subtotal;
 
-      // Reemplazo de partidas dentro de una transacción
       const [, actualizada] = await prisma.$transaction([
         prisma.partida.deleteMany({ where: { cotizacionId: existente.id } }),
         prisma.cotizacion.update({
@@ -304,16 +303,19 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
   try {
-    const existente = await prisma.cotizacion.findUnique({
-      where: { id: Number(req.params.id) },
-    });
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) {
+      res.status(400).json({ error: 'ID inválido' });
+      return;
+    }
 
+    const existente = await prisma.cotizacion.findUnique({ where: { id } });
     if (!existente || existente.usuarioId !== req.usuario!.sub) {
       res.status(404).json({ error: 'Cotización no encontrada' });
       return;
     }
 
-    await prisma.cotizacion.delete({ where: { id: existente.id } });
+    await prisma.cotizacion.delete({ where: { id } });
     res.status(204).end();
   } catch (error) {
     console.error('Error al eliminar cotización:', error);

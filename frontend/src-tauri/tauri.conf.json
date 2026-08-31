@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "draco",
-  "version": "1.0.14",
+  "version": "1.0.16",
   "identifier": "com.draco.app",
   "build": {
     "frontendDist": "../dist",
@@ -25,7 +25,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDZCODJCQjlCRDI3MzkzNTAKUldSUWszUFNtN3VDYTdMWHA3ZEZSNVNpSG9FMXRtOSs0SEg1b3B2MmN3VG9PMjk2V20vRXRrVUwK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDg1RkM5NDE4ODY2NEI5QUQKUldTdHVXU0dHSlQ4aFJpYjFKVy83cm9Zbm5hY1pMT1FXMmE4ckJkUHh4eEFwdWlYeDNVM001WVoK",
       "endpoints": [
         "https://github.com/ErickBarbosa7/Draco/releases/latest/download/latest.json"
       ],

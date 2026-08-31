@@ -2,11 +2,16 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { api } from '../lib/api';
 import { useAppStore } from '../store/useAppStore';
+import type { Usuario } from '../types';
 import type { FormEvent } from 'react';
 
 interface PerfilModalProps {
   open: boolean;
   onClose: () => void;
+}
+
+interface RespuestaPerfil {
+  usuario: Usuario;
 }
 
 export default function PerfilModal({ open, onClose }: PerfilModalProps) {
@@ -43,7 +48,7 @@ export default function PerfilModal({ open, onClose }: PerfilModalProps) {
     e.preventDefault();
     setCargando(true);
     try {
-      const data = await api.put<{ usuario: any }>('/auth/perfil', {
+      const data = await api.put<RespuestaPerfil>('/auth/perfil', {
         nombre,
         email,
         password: password || undefined,

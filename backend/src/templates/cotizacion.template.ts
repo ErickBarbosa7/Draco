@@ -22,17 +22,25 @@ export function plantillaCotizacion(data: {
   const fmt = (v: number) =>
     new Intl.NumberFormat('es-MX', { style: 'currency', currency: data.monedaBase }).format(v);
 
+  const esc = (valor: string | number | undefined | null): string =>
+    String(valor ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
   const filasPartidas = data.partidas
     .map(
       (p, i) => `
       <tr>
         <td class="cell center">${i + 1}</td>
         <td class="cell center">
-          ${p.imagenUrl ? `<img src="${p.imagenUrl}" class="thumb" />` : '<span class="no-img">—</span>'}
+          ${p.imagenUrl ? `<img src="${esc(p.imagenUrl)}" class="thumb" />` : '<span class="no-img">—</span>'}
         </td>
-        <td class="cell">${p.codigoProducto || '—'}</td>
+        <td class="cell">${esc(p.codigoProducto) || '—'}</td>
         <td class="cell center">${p.cantidad}</td>
-        <td class="cell">${p.descripcion}</td>
+        <td class="cell">${esc(p.descripcion)}</td>
         <td class="cell right">${fmt(p.precioUnitario)}</td>
         <td class="cell right bold">${fmt(p.totalPartida)}</td>
       </tr>`,
@@ -103,23 +111,23 @@ export function plantillaCotizacion(data: {
         <p>Sistema de Gestión de Cotizaciones</p>
       </div>
       <div class="doc-info">
-        <div class="folio">${data.folio}</div>
-        <div class="date">${data.fechaCreacion}</div>
+        <div class="folio">${esc(data.folio)}</div>
+        <div class="date">${esc(data.fechaCreacion)}</div>
       </div>
     </div>
 
     <div class="info-grid">
       <div class="info-box">
         <h3>Cliente</h3>
-        <p style="font-weight: 600; color: #0f172a;">${data.clienteNombre}</p>
-        ${data.clienteContacto ? `<p><span class="label">Contacto:</span> ${data.clienteContacto}</p>` : ''}
-        ${data.clienteEmail ? `<p><span class="label">Email:</span> ${data.clienteEmail}</p>` : ''}
+        <p style="font-weight: 600; color: #0f172a;">${esc(data.clienteNombre)}</p>
+        ${data.clienteContacto ? `<p><span class="label">Contacto:</span> ${esc(data.clienteContacto)}</p>` : ''}
+        ${data.clienteEmail ? `<p><span class="label">Email:</span> ${esc(data.clienteEmail)}</p>` : ''}
       </div>
       <div class="info-box">
         <h3>Detalles</h3>
-        <p><span class="label">Moneda:</span> <strong>${data.monedaBase}</strong></p>
+        <p><span class="label">Moneda:</span> <strong>${esc(data.monedaBase)}</strong></p>
         ${data.tipoCambioAplicado !== 1 ? `<p><span class="label">Tipo de cambio:</span> $${data.tipoCambioAplicado}</p>` : ''}
-        ${data.condicionesPago ? `<p><span class="label">Pago:</span> ${data.condicionesPago}</p>` : ''}
+        ${data.condicionesPago ? `<p><span class="label">Pago:</span> ${esc(data.condicionesPago)}</p>` : ''}
       </div>
     </div>
 
@@ -158,7 +166,7 @@ export function plantillaCotizacion(data: {
     ${data.notas ? `
     <div class="notes">
       <h4>Notas</h4>
-      <p>${data.notas}</p>
+      <p>${esc(data.notas)}</p>
     </div>` : ''}
 
     <div class="footer">

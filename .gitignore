@@ -26,3 +26,14 @@ backend/prisma/migrations/
 
 # TypeScript
 *.tsbuildinfo
+
+# Seguridad: claves y firmas de Tauri (NUNCA subir al repositorio)
+*.key
+*.sig
+*.pem
+decoded.key
+test.txt
+test.txt.sig
+
+# Actualizaciones locales
+*.tar.gz

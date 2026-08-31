@@ -14,31 +14,17 @@ interface LoginResponse {
 }
 
 export default function LoginPage() {
-  const [modo, setModo] = useState<'login' | 'registro'>('login');
-  const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [cargando, setCargando] = useState(false);
   const setSesion = useAppStore((s) => s.setSesion);
   const navigate = useNavigate();
 
-  function alternarModo() {
-    setModo((m) => (m === 'login' ? 'registro' : 'login'));
-    setNombre('');
-    setEmail('');
-    setPassword('');
-  }
-
   async function manejarSubmit(e: FormEvent) {
     e.preventDefault();
     setCargando(true);
     try {
-      let res: LoginResponse;
-      if (modo === 'login') {
-        res = await api.login<LoginResponse>('/auth/login', { email, password });
-      } else {
-        res = await api.register<LoginResponse>({ nombre, email, password });
-      }
+      const res = await api.login<LoginResponse>('/auth/login', { email, password });
       setSesion(res.token, res.usuario);
       toast.success(`Bienvenido, ${res.usuario.nombre}`);
       navigate('/');
@@ -76,67 +62,39 @@ export default function LoginPage() {
           </div>
 
           {/* Área central del formulario */}
-          <div className="mx-auto mt-12 w-full max-w-md flex-1">
-            <div className="mb-12 text-center">
-              <h1 className="text-4xl font-extrabold text-gray-900">
-                {modo === 'login' ? 'Welcome Back!' : 'Create Account'}
-              </h1>
-              <p className="mt-2 text-base font-medium text-gray-500">
-                {modo === 'login' ? 'welcome to Draco' : 'join our dark side'}
-              </p>
-            </div>
+            <div className="mx-auto mt-12 w-full max-w-md flex-1">
+              <div className="mb-12 text-center">
+                <h1 className="text-4xl font-extrabold text-gray-900">Welcome Back!</h1>
+                <p className="mt-2 text-base font-medium text-gray-500">welcome to Draco</p>
+              </div>
 
-            <form onSubmit={manejarSubmit} className="space-y-5">
-              {modo === 'registro' && (
-                <Campo 
-                  id="nombre" 
-                  label="Name" 
-                  type="text" 
-                  value={nombre} 
-                  onChange={setNombre} 
-                  required 
+              <form onSubmit={manejarSubmit} className="space-y-5">
+                <Campo
+                  id="email"
+                  label="Email"
+                  type="email"
+                  value={email}
+                  onChange={setEmail}
+                  required
                 />
-              )}
-              <Campo 
-                id="email" 
-                label="Email" 
-                type="email" 
-                value={email} 
-                onChange={setEmail} 
-                required 
-              />
-              <Campo
-                id="password"
-                label="Password"
-                type="password"
-                value={password}
-                onChange={setPassword}
-                required
-                minLength={modo === 'registro' ? 6 : undefined}
-              />
+                <Campo
+                  id="password"
+                  label="Password"
+                  type="password"
+                  value={password}
+                  onChange={setPassword}
+                  required
+                />
 
-              <button
-                type="submit"
-                disabled={cargando}
-                className="mt-8 flex w-full items-center justify-center rounded-full bg-[#111827] py-4 text-base font-bold tracking-wide text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-70 shadow-lg hover:shadow-xl"
-              >
-                {cargando 
-                  ? 'Processing...' 
-                  : modo === 'login' ? 'Login' : 'Sign Up'}
-              </button>
-            </form>
-
-            <p className="mt-8 text-center text-sm font-semibold text-gray-500">
-              {modo === 'login' ? "Don't have an account? " : "Already have an account? "}
-              <button
-                type="button"
-                onClick={alternarModo}
-                className="text-red-800 hover:underline"
-              >
-                {modo === 'login' ? 'Sign Up' : 'Login'}
-              </button>
-            </p>
-          </div>
+                <button
+                  type="submit"
+                  disabled={cargando}
+                  className="mt-8 flex w-full items-center justify-center rounded-full bg-[#111827] py-4 text-base font-bold tracking-wide text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-70 shadow-lg hover:shadow-xl"
+                >
+                  {cargando ? 'Processing...' : 'Login'}
+                </button>
+              </form>
+            </div>
 
         </main>
       </div>
